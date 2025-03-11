@@ -1,34 +1,19 @@
 pipeline {
-    agent any  // Runs on any available Jenkins agent
-
+    agent any
     stages {
-        stage('Build') {
+        stage('Cleanup') {
             steps {
-                echo 'Building the application...'
-                sh 'g++ -o hello_exec hello.cpp'
+                sh 'rm -rf *'  // Deletes everything to ensure a fresh checkout
             }
         }
-
-        stage('Test') {
+        stage('Checkout') {
             steps {
-                echo 'Running tests...'
-                sh './hello_exec'
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[url: 'https://github.com/HemavathiVM/pes1ug23cs811_jenkins.git']],
+                    extensions: [[$class: 'WipeWorkspace']]
+                ])
             }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying the application...'
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline executed successfully! ✅'
-        }
-        failure {
-            echo 'Pipeline failed ❌'
         }
     }
 }
